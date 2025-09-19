@@ -10,7 +10,7 @@ from opa_client.opa import OpaClient
 
 ## -- BEGIN CONSTANTS DECLARATION -- ##
 OPA_HOSTNAME = os.getenv("OPA_HOSTNAME")
-OPA_PORT = os.getenv("OPA_PORT")
+OPA_PORT = int(os.getenv("OPA_PORT", "8181"))
 ## -- END CONSTANTS DECLARATION -- ##
 
 ## -- BEGIN Pydantic MODELS -- ##
@@ -21,9 +21,9 @@ class EvaluationRequest(BaseModel):
     - rule_name: The rule inside the package to evaluate (e.g., "allow")
     - input: The input data dictionary for evaluation
     """
-    policy_path: str
-    rule_name: str
     input: Dict[str, Any]
+    package_path: str
+    rule_name: str
 
 class EvaluationResponse(BaseModel):
     """
@@ -60,7 +60,7 @@ def evaluate_policy(request: EvaluationRequest):
         # Use the recommended query_rule() method from opa-python-client
         result = opa_client.query_rule(
             input_data=request.input,
-            package_path=request.policy_path,
+            package_path=request.package_path,
             rule_name=request.rule_name
         )
         return {"result": result}
