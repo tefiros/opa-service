@@ -40,6 +40,17 @@ poetry install
 
 ---
 
+## 🛠️ Environmental variables
+
+These are the environmental variables that can be configured:
+
+| **Variable** |                        **Description**                        |
+| :----------------: | :------------------------------------------------------------------: |
+|  `OPA_HOSTNAME`  |       Hostname where the OPA service is running and reachable.       |
+|    `OPA_PORT`    | Port number (String) where the OPA service is running and reachable. |
+
+When installing the Helm Chart, upgrade it with a custom `myvalues.yaml` file where you define the environmental variables that you wish to override.
+
 ## ▶️ Running the service
 
 Start the FastAPI service:

@@ -9,9 +9,8 @@ from typing import Any, Dict
 from opa_client.opa import OpaClient
 
 ## -- BEGIN CONSTANTS DECLARATION -- ##
-# OPA connection settings via environment variables (default to localhost:8181)
-OPA_HOSTNAME = os.getenv("OPA_HOSTNAME", "localhost")
-OPA_PORT = os.getenv("OPA_PORT", "8181")
+OPA_HOSTNAME = os.getenv("OPA_HOSTNAME")
+OPA_PORT = os.getenv("OPA_PORT")
 ## -- END CONSTANTS DECLARATION -- ##
 
 ## -- BEGIN Pydantic MODELS -- ##
