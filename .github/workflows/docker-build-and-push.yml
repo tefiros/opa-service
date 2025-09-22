@@ -1,4 +1,4 @@
-name: Build and push Docker image to GitHub Packages
+name: Build and Push Docker image to GitHub Packages
 
 # Trigger the workflow on release creation for the main branch:
 on:
