@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "opa-service"
+version = "0.1.0"
+description = ""
+authors = ["LuciaCabanillasRodriguez <lucia.cabanillasrodriguez@telefonica.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.116.2"
+opa-python-client = "2.0.3"
+pydantic = "^2.11.9"
+uvicorn = "^0.35.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.4.2"
+httpx = "^0.28.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
