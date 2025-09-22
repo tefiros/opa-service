@@ -9,7 +9,6 @@ LABEL app_version="0.1.0"
 LABEL maintainer="lucia.cabanillasrodriguez@telefonica.com"
 
 # --- Install Poetry ---
-# --- Install Poetry ---
 ARG POETRY_VERSION=1.8
 
 ENV POETRY_HOME=/opt/poetry
@@ -21,7 +20,6 @@ ENV PYTHONUNBUFFERED=1
 # Poetry cache for dependencies
 ENV POETRY_CACHE_DIR=/opt/.cache
 
-# Install Poetry
 RUN pip install "poetry==${POETRY_VERSION}"
 
 WORKDIR /app
