@@ -59,7 +59,7 @@ def evaluate_policy(request: EvaluationRequest):
     """
     try:
             result = opa_client.query_rule(
-                request=request.__root__,
+                input_data=request.input,
                 package_path="AccessControl",
                 rule_name="allow",
             )
