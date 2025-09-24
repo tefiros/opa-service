@@ -1,5 +1,5 @@
 __name__ = "OPA Evaluation Service"
-__version__ = "0.1.0"
+__version__ = "1.0.0"
 
 import os
 import uvicorn
@@ -22,15 +22,14 @@ class EvaluationRequest(BaseModel):
     - input: The input data dictionary for evaluation
     """
     input: Dict[str, Any]
-    package_path: str
-    rule_name: str
 
-class EvaluationResponse(BaseModel):
+
+class OpaDecisionResponse(BaseModel):
     """
     Response body for POST /evaluate
     - result: The evaluation result returned by OPA
     """
-    result: Any
+    result: Dict[str, Any]
 ## -- END Pydantic MODELS -- ##
 
 # Initialize FastAPI app
@@ -44,28 +43,38 @@ opa_client = OpaClient(host=OPA_HOSTNAME, port=int(OPA_PORT))
 
 ## -- BEGIN ENDPOINTS -- ##
 @app.post(
-    path="/evaluate",
-    description="Evaluate a specific rule in a Rego package on OPA.",
+    path="/v1/data/AccessControl",
+    description="Evaluate policies in a Rego package on OPA.",
     tags=["Evaluate"],
+    response_model=OpaDecisionResponse,
     responses={
-        status.HTTP_200_OK: {"model": EvaluationResponse},
-        status.HTTP_500_INTERNAL_SERVER_ERROR: {"model": str},
+        status.HTTP_200_OK: {"description": "Decision response"},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "OPA error"},
     },
 )
+
 def evaluate_policy(request: EvaluationRequest):
     """
-    Sends input data to OPA and returns the result of the specified rule evaluation.
+    Sends input data to OPA and returns the result
     """
     try:
-        # Use the recommended query_rule() method from opa-python-client
-        result = opa_client.query_rule(
-            input_data=request.input,
-            package_path=request.package_path,
-            rule_name=request.rule_name
-        )
-        return {"result": result}
+            result = opa_client.query_rule(
+                request=request.__root__,
+                package_path="AccessControl",
+                rule_name="allow",
+            )
+
+            allow = result.get("result", False)
+
+            return OpaDecisionResponse(
+                result={
+                    "allow": allow,
+                    "reason": "Access granted" if allow else "Access denied",
+                    "status_code": 200 if allow else 403,
+                    "headers": {}
+                }
+            )
     except Exception as e:
-        # Return a 500 HTTP error with exception details
         raise HTTPException(status_code=500, detail=str(e))
 ## -- END ENDPOINTS -- ##
 
