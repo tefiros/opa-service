@@ -52,7 +52,7 @@ opa_client = OpaClient(host=OPA_HOSTNAME, port=int(OPA_PORT))
         status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "OPA error"},
     },
 )
-
+    
 def evaluate_policy(request: EvaluationRequest):
     """
     Sends input data to OPA and returns the result
@@ -74,6 +74,20 @@ def evaluate_policy(request: EvaluationRequest):
                     "headers": {}
                 }
             )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@app.post("/v1/data/AccessControl/allow")
+def evaluate_allow(request: EvaluationRequest):
+    try:
+        result = opa_client.query_rule(
+            input_data=request.input,
+            package_path="AccessControl",
+            rule_name="allow",
+        )
+
+        allow = result.get("result", False)
+        return {"result": allow}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 ## -- END ENDPOINTS -- ##
