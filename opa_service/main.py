@@ -5,8 +5,10 @@ import os
 import uvicorn
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel
-from typing import Any, Dict
+from typing import Any, Dict, List
 from opa_client.opa import OpaClient
+
+from opa_service.api import exec_log
 
 ## -- BEGIN CONSTANTS DECLARATION -- ##
 OPA_HOSTNAME = os.getenv("OPA_HOSTNAME")
@@ -31,6 +33,37 @@ class OpaDecisionResponse(BaseModel):
     """
     result: Dict[str, Any]
 ## -- END Pydantic MODELS -- ##
+
+
+## -- BEGIN Helpers -- ##
+def get_policy_ids_for_package(package_name: str) -> List[str]:
+    matches: List[str] = []
+
+    try:
+        policies = opa_client.get_policies_list()
+
+        for pid in policies:
+            try:
+                p = opa_client.get_policy(pid)
+            except Exception as e:
+                print("Error fetching policy:", pid, e)
+                continue
+
+            raw = (
+                p.get("result", {}).get("raw")
+                or p.get("raw")
+                or ""
+            )
+
+            if f"package {package_name}" in raw:
+                matches.append(pid)
+
+    except Exception as e:
+        print("Error discovering policies by package:", e)
+
+    return matches
+
+## -- END Helpers -- ##
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -58,10 +91,29 @@ def evaluate_policy(request: EvaluationRequest):
     Sends input data to OPA and returns the result
     """
     try:
+            package_name = "AccessControl"
+
+            policy_ids = get_policy_ids_for_package(package_name)
+
             result = opa_client.query_rule(
                 input_data=request.input,
-                package_path="AccessControl",
+                package_path=package_name,
                 rule_name="allow",
+            )
+
+            # Generate Accounting Log
+            exec_log(
+                resource="policy evaluation",
+                input_data={
+                    "input": request.input,
+                    "package": package_name,
+                    "policy_ids": policy_ids,
+                },
+                output_data={
+                    "allow": allow,
+                    "package": package_name,
+                    "policy_ids": policy_ids,
+                },
             )
 
             allow = result.get("result", False)
@@ -69,6 +121,7 @@ def evaluate_policy(request: EvaluationRequest):
             return OpaDecisionResponse(
                 result={
                     "allow": allow,
+                    "policy_ids": policy_ids,
                     "reason": "Access granted" if allow else "Access denied",
                     "status_code": 200 if allow else 403,
                     "headers": {}
