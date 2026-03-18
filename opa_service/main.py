@@ -7,8 +7,9 @@ from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel
 from typing import Any, Dict, List
 from opa_client.opa import OpaClient
-
-from .api import exec_log
+import sys
+sys.path.append('/app') 
+from opa_service.api import exec_log
 
 ## -- BEGIN CONSTANTS DECLARATION -- ##
 OPA_HOSTNAME = os.getenv("OPA_HOSTNAME")
