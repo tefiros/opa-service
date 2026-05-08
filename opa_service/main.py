@@ -102,6 +102,8 @@ def evaluate_policy(request: EvaluationRequest):
                 rule_name="allow",
             )
 
+            allow = result.get("result", False)
+            
             # Generate Accounting Log
             exec_log(
                 resource="policy evaluation",
@@ -117,7 +119,7 @@ def evaluate_policy(request: EvaluationRequest):
                 },
             )
 
-            allow = result.get("result", False)
+            
 
             return OpaDecisionResponse(
                 result={
