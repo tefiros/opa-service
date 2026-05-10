@@ -147,13 +147,41 @@ def evaluate_policy(request: EvaluationRequest):
 @app.post("/v1/data/AccessControl/allow")
 def evaluate_allow(request: EvaluationRequest):
     try:
+        print("🚀 [OPA] evaluate_policy START")
+
+        package_name = "AccessControl"
+        print(f"📦 Package: {package_name}")
+
+        policy_ids = get_policy_ids_for_package(package_name)
+        print(f"📜 Policy IDs: {policy_ids}")
+
+        print("🔎 Calling OPA query_rule...")
         result = opa_client.query_rule(
             input_data=request.input,
-            package_path="AccessControl",
+            package_path=package_name,
             rule_name="allow",
         )
+        print(f"📥 OPA result: {result}")
 
         allow = result.get("result", False)
+        print(f"✅ Allow decision: {allow}")
+
+        print("🧾 Sending exec_log to ledger...")
+        exec_log(
+            resource="policy evaluation",
+            input_data={
+                "input": request.input,
+                "package": package_name,
+                "policy_ids": policy_ids,
+            },
+            output_data={
+                "allow": allow,
+                "package": package_name,
+                "policy_ids": policy_ids,
+            },
+        )
+        print("📤 exec_log sent")
+
         return {"result": allow}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
