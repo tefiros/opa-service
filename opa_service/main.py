@@ -9,7 +9,7 @@ from typing import Any, Dict, List
 from opa_client.opa import OpaClient
 import sys
 sys.path.append('/app') 
-from opa_service.api import exec_log
+import ledger_client as ledger
 
 ## -- BEGIN CONSTANTS DECLARATION -- ##
 OPA_HOSTNAME = os.getenv("OPA_HOSTNAME")
@@ -112,7 +112,7 @@ def evaluate_policy(request: EvaluationRequest):
         print(f"✅ Allow decision: {allow}")
 
         print("🧾 Sending exec_log to ledger...")
-        exec_log(
+        ledger.exec_log(
             resource="policy evaluation",
             input_data={
                 "input": request.input,
@@ -167,7 +167,7 @@ def evaluate_allow(request: EvaluationRequest):
         print(f"✅ Allow decision: {allow}")
 
         print("🧾 Sending exec_log to ledger...")
-        exec_log(
+        ledger.exec_log(
             resource="policy evaluation",
             input_data={
                 "input": request.input,

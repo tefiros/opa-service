@@ -48,6 +48,8 @@ These are the environmental variables that can be configured:
 | :----------------: | :------------------------------------------------------------------: |
 |  `OPA_HOSTNAME`  |       Hostname where the OPA service is running and reachable.       |
 |    `OPA_PORT`    | Port number (String) where the OPA service is running and reachable. |
+|    `NODE_URL`    | The full URL of the target Accounting Ledger service. |
+|    `HTTP_PORT`    | Port number (String) where the Accountign Ledger is reachable. |
 
 When installing the Helm Chart, upgrade it with a custom `myvalues.yaml` file where you define the environmental variables that you wish to override.
 
